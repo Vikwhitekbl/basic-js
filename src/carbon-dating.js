@@ -17,8 +17,17 @@ const HALF_LIFE_PERIOD = 5730;
  * dateSample('WOOT!') => false
  *
  */
-function dateSample(/* sampleActivity */) {
-  throw new NotImplementedError('Not implemented');
+function dateSample(sampleActivity) {
+  const newSampleActivity = parseFloat(sampleActivity);
+  if (!sampleActivity || typeof sampleActivity !== 'string') {
+    return false;
+  }
+
+  if (Number.isNaN(newSampleActivity) || newSampleActivity <= 0 || newSampleActivity > MODERN_ACTIVITY) {
+    return false;
+  }
+  const archeologicalAge = Math.ceil((Math.log(MODERN_ACTIVITY / newSampleActivity)) / (0.693 / HALF_LIFE_PERIOD));
+  return archeologicalAge;
   // remove line with error and write your code here
 }
 

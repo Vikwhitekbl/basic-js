@@ -10,8 +10,19 @@ const { NotImplementedError } = require('../extensions/index.js');
  * For aabbbc should return 2a3bc
  *
  */
-function encodeLine(/* str */) {
-  throw new NotImplementedError('Not implemented');
+function encodeLine(str) {
+  let encodedVer = '';
+  let count = 1;
+
+  for (let i = 0; i < str.length; i += 1) {
+    if (str[i] === str[i + 1]) {
+      count++;
+    } else {
+      encodedVer += (count > 1 ? count : '') + str[i];
+      count = 1;
+    }
+  }
+  return encodedVer;
   // remove line with error and write your code here
 }
 

@@ -17,7 +17,7 @@ function getSeason(date) {
   if (date === undefined) {
     return 'Unable to determine the time of year!';
   }
-  if (!(date instanceof Date) || Number.isNaN(date)) {
+  if (!date || Object.prototype.toString.call(date) !== '[object Date]' || isNaN(date)) {
     throw new Error('Invalid date!');
   }
 

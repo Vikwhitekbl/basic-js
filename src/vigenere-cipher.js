@@ -22,74 +22,80 @@ const { NotImplementedError } = require('../extensions/index.js');
 class VigenereCipheringMachine {
   constructor(isDirect = true) {
     this.isDirect = isDirect;
-    this.alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   }
   encrypt(message, key) {
-    message = message.toUpperCase().replace(/[^A-Z]/g, '');
-    key = key.toUpperCase().replace(/[^A-Z]/g, '');
-    let result = '';
-    const keyLength = key.length;
-    let keyIndex = 0;
-
     if (!message || !key) {
       throw new Error('Incorrect arguments!');
     };
 
+    message = message.toUpperCase().replace(/[^A-Za-z0-9 !:)(^.,#%|/&$*-@]/g, '');
+    key = key.toUpperCase().replace(/[^A-Z]/g, '');
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = '';
+    let keyIndex = 0;
+
     for (let i = 0; i < message.length; i += 1) {
       const messageChar = message[i];
-      const keyChar = key[keyIndex];
-      const keyCharCode = this.alphabet.indexOf(keyChar);
-      let shiftedIndex;
+      const keyChar = key[keyIndex % key.length];
 
-      if (this.isDirect) {
-        const messageCharCode = this.alphabet.indexOf(messageChar);
-        shiftedIndex = (messageCharCode + keyCharCode) % 26;
+      if (alphabet.includes(messageChar)) {
+        const messageIndex = alphabet.indexOf(messageChar);
+        const currentKeyIndex = alphabet.indexOf(keyChar);
+        let encryptedCharIndex;
+
+        if (this.isDirect) {
+          encryptedCharIndex = (messageIndex + currentKeyIndex) % 26;
+        } else {
+          encryptedCharIndex = Math.abs(messageIndex - currentKeyIndex) % 26;
+        }
+        const encryptedChar = alphabet[encryptedCharIndex];
+        if (this.isDirect) {
+          result += encryptedChar;
+        } else {
+          result = encryptedChar + result;
+        }
+        
+        keyIndex++;
       } else {
-        const messageCharCode = (this.alphabet.indexOf(messageChar) + 26) % 26;
-        shiftedIndex = (messageCharCode - keyCharCode + 26) % 26;
-      }
-
-      result += this.alphabet[shiftedIndex];
-      keyIndex++;
-      if (keyIndex === keyLength) {
-        keyIndex = 0;
+        result += messageChar;
       }
     }
-    return result;
+    return this.isDirect ? result.split('').join('') : result;
     // remove line with error and write your code here
   }
-  decrypt(message, key) {
-    message = message.toUpperCase().replace(/[^A-Z]/g, '');
-    key = key.toUpperCase().replace(/[^A-Z]/g, '');
-    let result = '';
-    const keyLength = key.length;
-    let keyIndex = 0;
-
-    if (!message || !key) {
+  decrypt(result, key) {
+    if (!result || !key) {
       throw new Error('Incorrect arguments!');
     };
+    result = result.toUpperCase().replace(/[^A-Za-z0-9 !:)(^.,#%|/&$*-@]/g, '');
+    key = key.toUpperCase().replace(/[^A-Z]/g, '');
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let decryptedResult = '';
+    let keyIndex = 0;
 
-    for (let i = 0; i < message.length; i += 1) {
-      const messageChar = message[i];
-      const keyChar = key[keyIndex];
-      const keyCharCode = this.alphabet.indexOf(keyChar);
-      let shiftedIndex;
+    for (let i = 0; i < result.length; i += 1) {
+      const messageChar = result[i];
+      const keyChar = key[keyIndex % key.length];
 
-      if (this.isDirect) {
-        const messageCharCode = (this.alphabet.indexOf(messageChar) + 26) % 26;
-        shiftedIndex = (messageCharCode - keyCharCode + 26) % 26;
+      if (alphabet.includes(messageChar)) {
+        const messageIndex = alphabet.indexOf(messageChar);
+        const currentKeyIndex = alphabet.indexOf(keyChar);
+        let decryptedCharIndex;
+
+        if (this.isDirect) {
+          decryptedCharIndex = (messageIndex - currentKeyIndex + 26) % 26;
+        } else {
+          decryptedCharIndex = Math.abs(messageIndex - currentKeyIndex + 26) % 26;
+        }
+        const decryptedChar = alphabet[decryptedCharIndex];
+        decryptedResult += decryptedChar;
+        
+        keyIndex++;
       } else {
-        const messageCharCode = this.alphabet.indexOf(messageChar);
-        shiftedIndex = (messageCharCode + keyCharCode) % 26;
-      }
-
-      result += this.alphabet[shiftedIndex];
-      keyIndex++;
-      if (keyIndex === keyLength) {
-        keyIndex = 0;
+        decryptedResult += messageChar;
       }
     }
-    return result;    
+    return decryptedResult;    
     // remove line with error and write your code here
   }
 }
